@@ -1,0 +1,142 @@
+[
+  {
+    "row_index": 3,
+    "patient_id": "P01",
+    "type": "vague_report",
+    "description": "Vague description of mouth discomfort without explicit severity or frequency."
+  },
+  {
+    "row_index": 7,
+    "patient_id": "P01",
+    "type": "conflicting_report",
+    "description": "Same patient and date as row 8. Patient reports pain severity 8 earlier in the day."
+  },
+  {
+    "row_index": 8,
+    "patient_id": "P01",
+    "type": "conflicting_report",
+    "description": "Same patient and date as row 7. Patient reports pain severity 3 later that evening."
+  },
+  {
+    "row_index": 4,
+    "patient_id": "P01",
+    "type": "vague_report",
+    "description": "Missing severity and frequency. Low extraction confidence."
+  },
+  {
+    "row_index": 5,
+    "patient_id": "P01",
+    "type": "medication_change",
+    "description": "Oxycodone introduced after previously relying on other pain relief."
+  },
+  {
+    "row_index": 9,
+    "patient_id": "P01",
+    "type": "weight_loss_alert",
+    "description": "Weight decreased from baseline 168.0 lbs to 160.5 lbs, exceeding the 5% weight-loss threshold."
+  },
+  {
+    "row_index": 10,
+    "patient_id": "P01",
+    "type": "weight_loss_alert",
+    "description": "Weight decreased to 159.8 lbs, approximately 4.9% below baseline."
+  },
+  {
+    "row_index": 11,
+    "patient_id": "P01",
+    "type": "weight_loss_alert",
+    "description": "Weight decreased to 158.4 lbs, exceeding the 5% weight-loss threshold."
+  },
+  {
+    "row_index": 3,
+    "patient_id": "P02",
+    "type": "vague_report",
+    "description": "General statement of feeling unwell without a clear symptom severity or frequency."
+  },
+  {
+    "row_index": 4,
+    "patient_id": "P02",
+    "type": "medication_change",
+    "description": "Ondansetron introduced for nausea."
+  },
+  {
+    "row_index": 6,
+    "patient_id": "P02",
+    "type": "conflicting_report",
+    "description": "Raw text explicitly reports pain severity 7 while questionnaire records pain severity 3."
+  },
+  {
+    "row_index": 7,
+    "patient_id": "P02",
+    "type": "conflicting_report",
+    "description": "Same-day follow-up reports pain severity 3, creating a time-dependent difference from row 6."
+  },
+  {
+    "row_index": 6,
+    "patient_id": "P02",
+    "type": "raw_text_questionnaire_contradiction",
+    "description": "Raw text says pain is 7 and questionnaire says pain is 3."
+  },
+  {
+    "row_index": 5,
+    "patient_id": "P03",
+    "type": "medication_change",
+    "description": "Oxycodone introduced after inadequate pain relief."
+  },
+  {
+    "row_index": 7,
+    "patient_id": "P03",
+    "type": "conflicting_report",
+    "description": "Pain severity 8 reported earlier on November 1."
+  },
+  {
+    "row_index": 8,
+    "patient_id": "P03",
+    "type": "conflicting_report",
+    "description": "Same patient and date as row 7. Pain severity 5 reported later that evening."
+  },
+  {
+    "row_index": 9,
+    "patient_id": "P03",
+    "type": "weight_loss_alert",
+    "description": "Weight decreased from baseline 142.0 lbs to 136.0 lbs, exceeding the 5% weight-loss threshold."
+  },
+  {
+    "row_index": 10,
+    "patient_id": "P03",
+    "type": "weight_loss_alert",
+    "description": "Weight decreased to 135.2 lbs, approximately 4.8% below baseline."
+  },
+  {
+    "row_index": 11,
+    "patient_id": "P03",
+    "type": "weight_loss_alert",
+    "description": "Weight decreased to 134.8 lbs, exceeding the 5% weight-loss threshold."
+  },
+  {
+    "row_index": 4,
+    "patient_id": "P04",
+    "type": "vague_report",
+    "description": "Fatigue reported without a numeric severity or frequency."
+  },
+  {
+    "row_index": 4,
+    "patient_id": "P04",
+    "type": "conflicting_report",
+    "description": "Raw text reports pain severity 7 while questionnaire records pain severity 2."
+  },
+  {
+    "row_index": 5,
+    "patient_id": "P04",
+    "type": "conflicting_report",
+    "description": "Same patient and date as row 4. Pain severity 3 reported later in the evening."
+  },
+  {
+    "row_index": 4,
+    "patient_id": "P04",
+    "type": "raw_text_questionnaire_contradiction",
+    "description": "Raw text explicitly identifies an accidental questionnaire selection, with pain rated 7 in text and 2 in structured data."
+  }
+]
+
+

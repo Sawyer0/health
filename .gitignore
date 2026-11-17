@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.vscode/
+.pytest_cache/
+.mypy_cache/
+.coverage
+data/reports.db
+data/trend.png

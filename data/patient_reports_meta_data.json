@@ -1,0 +1,36 @@
+
+{
+  "dataset_name": "Synthetic Head and Neck Oncology Patient-Reported Outcomes",
+  "dataset_version": "1.0",
+  "generated_on": "2026-11-15",
+  "date_range": {
+    "start": "2026-10-19",
+    "end": "2026-11-14"
+  },
+  "patient_count": 4,
+  "report_count": 64,
+  "reports_per_patient": 16,
+  "weight_loss_alert_threshold": "At least 5% decrease from patient's baseline weight",
+  "severity_scale": {
+    "minimum": 1,
+    "maximum": 10,
+    "null": "Severity not explicitly established"
+  },
+  "symptoms": [
+    "mouth_sores",
+    "pain",
+    "swallowing",
+    "weight_loss",
+    "nausea",
+    "fatigue"
+  ],
+  "edge_case_categories": [
+    "vague_report",
+    "conflicting_report",
+    "medication_change",
+    "weight_loss_alert",
+    "raw_text_questionnaire_contradiction",
+    "low_confidence",
+    "missing_severity"
+  ]
+}
