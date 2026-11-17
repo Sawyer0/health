@@ -1,8 +1,8 @@
 """Specialized report card components composing base card and badge primitives."""
 
 import html
-from typing import Dict, Sequence, List
-from domain.schema import StoredSymptomReport, ConflictEvent
+from typing import Dict, Sequence, List, Optional
+from domain.schema import StoredSymptomReport, ConflictEvent, PatientClinicalSummary
 from constants import LOW_CONFIDENCE_THRESHOLD, FLAG_LABELS, CONFLICT_LABELS
 from components.badge import render_badge
 from components.card import render_card
@@ -88,6 +88,7 @@ def render_patient_paginated_card(
     reports: Sequence[StoredSymptomReport],
     conflicts_by_report: Dict[int, List[ConflictEvent]],
     show_mrn_in_header: bool = False,
+    clinical_summary: Optional[PatientClinicalSummary] = None,
 ) -> str:
     """
     Renders a single patient card grouped by unique patient_id (MRN) with
@@ -97,9 +98,14 @@ def render_patient_paginated_card(
     total = len(reports)
 
     mrn_class = "patient-mrn always-visible" if show_mrn_in_header else "patient-mrn"
+    risk_badge = ""
+    if clinical_summary and clinical_summary.clinically_significant_weight_loss and clinical_summary.weight_change_pct is not None:
+        risk_badge = render_badge(f"Weight {clinical_summary.weight_change_pct:+.1f}%", "warn")
+
     title_html = (
         f'<span class="patient-name">{html.escape(first.patient_name)}</span>'
         f'<span class="{mrn_class}" title="Unique Patient ID (MRN)">MRN {html.escape(first.patient_id)}</span>'
+        f'{risk_badge}'
     )
 
     pager_html = ""
@@ -141,8 +147,20 @@ def render_patient_paginated_card(
         </div>
         """)
 
+    summary_strip_html = ""
+    if clinical_summary:
+        metrics: List[str] = []
+        if clinical_summary.baseline_weight_lbs is not None and clinical_summary.latest_weight_lbs is not None:
+            pct_str = f" ({clinical_summary.weight_change_pct:+.1f}%)" if clinical_summary.weight_change_pct is not None else ""
+            metrics.append(f"<span><strong>Trajectory:</strong> {clinical_summary.baseline_weight_lbs} &rarr; {clinical_summary.latest_weight_lbs} lbs{pct_str}</span>")
+        if clinical_summary.avg_severity is not None and clinical_summary.peak_severity is not None:
+            metrics.append(f"<span><strong>Severity:</strong> Avg {clinical_summary.avg_severity:.1f} &bull; Peak {clinical_summary.peak_severity}/10</span>")
+        if metrics:
+            summary_strip_html = f'<div class="clinical-summary-strip">{"".join(metrics)}</div>'
+
     chart_html = f"""
     <div class="card-detail detail-chart">
+        {summary_strip_html}
         <img src="/patient/{html.escape(first.patient_id)}/chart" alt="Patient trend chart" class="card-chart-img">
     </div>
     """

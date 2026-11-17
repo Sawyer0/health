@@ -151,3 +151,8 @@ def test_patient_clinical_summaries_and_endpoint(api_client: tuple[TestClient, P
     assert summary["weight_change_pct"] == -6.0
     assert summary["clinically_significant_weight_loss"] is True
     assert summary["review_flag_count"] == 1
+
+    dash_html = client.get("/dashboard").text
+    assert "Weight -6.0%" in dash_html
+    assert "200.0 &rarr; 188.0 lbs (-6.0%)" in dash_html
+    assert "Avg 6.0 &bull; Peak 8/10" in dash_html

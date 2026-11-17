@@ -116,4 +116,5 @@ def get_dashboard(
     with store:
         queue = store.review_queue(patient_id=patient_id)
         all_conflicts = store.detect_conflicts(patient_id=patient_id)
-    return render_dashboard_page(queue, all_conflicts)
+        summaries = store.patient_clinical_summaries(patient_id=patient_id)
+    return render_dashboard_page(queue, all_conflicts, summaries)

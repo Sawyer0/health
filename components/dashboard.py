@@ -1,7 +1,7 @@
 """Dashboard page layout component (HTML shell, styles, and client-side interactions)."""
 
 from typing import Sequence, Dict, List
-from domain.schema import StoredSymptomReport, ConflictEvent
+from domain.schema import StoredSymptomReport, ConflictEvent, PatientClinicalSummary
 from components.report_card import render_patient_paginated_card
 
 
@@ -128,6 +128,7 @@ h1 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); }
     font-weight: 600;
 }
 .badge-flag { background: var(--danger-bg); color: var(--danger); border: 1px solid #fecaca; }
+.badge-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid #fed7aa; }
 .badge-conflict { background: var(--conflict-bg); color: var(--conflict); border: 1px solid #bfdbfe; text-transform: capitalize; }
 .card-detail {
     display: none;
@@ -151,6 +152,19 @@ h1 { font-size: 1.25rem; font-weight: 700; color: var(--text-main); }
     font-weight: 500;
 }
 .detail-chart { margin-top: 0.6rem; }
+.clinical-summary-strip {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 0.4rem 0.65rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.78rem;
+    color: #334155;
+}
 .card-chart-img {
     width: 100%;
     height: auto;
@@ -217,12 +231,17 @@ function changeReportPage(btn, delta) {
 def render_dashboard_page(
     queue: Sequence[StoredSymptomReport],
     conflicts: Sequence[ConflictEvent],
+    summaries: Sequence[PatientClinicalSummary] = (),
 ) -> str:
     """Renders the full Clinical PRO Triage Dashboard HTML document."""
     conflicts_by_report: Dict[int, List[ConflictEvent]] = {}
     for c in conflicts:
         for r_id in c.report_ids:
             conflicts_by_report.setdefault(r_id, []).append(c)
+
+    summaries_by_pid: Dict[str, PatientClinicalSummary] = {
+        s.patient_id: s for s in summaries
+    }
 
     grouped_by_patient: Dict[str, List[StoredSymptomReport]] = {}
     for r in queue:
@@ -237,8 +256,9 @@ def render_dashboard_page(
             p_reports,
             conflicts_by_report,
             show_mrn_in_header=len(pids_by_name.get(p_reports[0].patient_name, set())) > 1,
+            clinical_summary=summaries_by_pid.get(pid),
         )
-        for p_reports in grouped_by_patient.values()
+        for pid, p_reports in grouped_by_patient.items()
     ]
 
     rendered_queue = (
