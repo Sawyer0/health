@@ -2,7 +2,7 @@
 
 from typing import List, Optional, Set, Tuple
 from domain.schema import StoredSymptomReport, ConflictEvent
-from constants import LOW_CONFIDENCE_THRESHOLD
+from constants import LOW_CONFIDENCE_THRESHOLD, CONTRADICTION_SEVERITY_DELTA_THRESHOLD
 
 
 def detect_same_day_divergence(
@@ -39,7 +39,14 @@ def detect_questionnaire_contradictions(
 ) -> List[ConflictEvent]:
     conflicts: List[ConflictEvent] = []
     for r in reports:
-        if "conflicting_report" in r.flags or "raw_text_questionnaire_contradiction" in r.flags:
+        is_explicit_contradiction = "raw_text_questionnaire_contradiction" in r.flags
+        has_q_mismatch = False
+        if r.questionnaire and r.severity is not None and r.symptom:
+            q_val = r.questionnaire.get(r.symptom)
+            if isinstance(q_val, (int, float)) and abs(r.severity - int(q_val)) >= CONTRADICTION_SEVERITY_DELTA_THRESHOLD:
+                has_q_mismatch = True
+
+        if is_explicit_contradiction or ("conflicting_report" in r.flags and (has_q_mismatch or not r.questionnaire)):
             conflicts.append(
                 ConflictEvent(
                     type="raw_text_questionnaire_contradiction",

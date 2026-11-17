@@ -1,6 +1,12 @@
 """Pure domain layer: models, free-text parser, and conflict detection rules."""
 
-from domain.schema import SymptomReport, ParseResult, StoredSymptomReport, ConflictEvent
+from domain.schema import (
+    SymptomReport,
+    ParseResult,
+    StoredSymptomReport,
+    ConflictEvent,
+    PatientClinicalSummary,
+)
 from domain.parser import parse_report, rule_based_extract
 from domain.conflicts import (
     detect_same_day_divergence,
@@ -15,6 +21,7 @@ __all__ = [
     "ParseResult",
     "StoredSymptomReport",
     "ConflictEvent",
+    "PatientClinicalSummary",
     "parse_report",
     "rule_based_extract",
     "detect_same_day_divergence",

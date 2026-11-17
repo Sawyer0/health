@@ -58,6 +58,23 @@ def report_medication_deltas(store: ReportStore, reports: List[SymptomReport]) -
     print(f"Total medication changes logged: {total_changes}")
 
 
+def report_patient_summaries(store: ReportStore) -> None:
+    """Prints per-patient clinical risk and weight-loss summary computed in SQL."""
+    summaries = store.patient_clinical_summaries()
+    print("\n--- Patient Clinical & Weight-Loss Risk Summary ---")
+    for s in summaries:
+        wt_str = (
+            f"{s.baseline_weight_lbs} -> {s.latest_weight_lbs} lbs ({s.weight_change_pct:+.2f}%)"
+            if s.weight_change_pct is not None
+            else "No weight data"
+        )
+        risk = " [MALNUTRITION RISK >=5%]" if s.clinically_significant_weight_loss else ""
+        print(
+            f"  {s.patient_id} ({s.patient_name}): reports={s.total_reports}, "
+            f"peak_sev={s.peak_severity}, avg_sev={s.avg_severity}, weight={wt_str}{risk}"
+        )
+
+
 def generate_baseline_chart(store: ReportStore, chart_path: Union[str, Path]) -> None:
     """Generates the multi-track symptom/weight trend chart for the first patient."""
     all_rows = store.latest_reports_dashboard()
@@ -86,6 +103,7 @@ def run_pipeline(
 
     with ReportStore(db_path) as store:
         parsed = ingest_reports(store, raw_reports)
+        report_patient_summaries(store)
         report_conflicts(store)
         report_medication_deltas(store, parsed)
         display_review_queue(store.review_queue())

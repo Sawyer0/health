@@ -33,13 +33,13 @@
     "row_index": 9,
     "patient_id": "P01",
     "type": "weight_loss_alert",
-    "description": "Weight decreased from baseline 168.0 lbs to 160.5 lbs, exceeding the 5% weight-loss threshold."
+    "description": "Weight decreased from baseline 168.0 lbs to 159.4 lbs (-5.12%), exceeding the 5% weight-loss threshold."
   },
   {
     "row_index": 10,
     "patient_id": "P01",
     "type": "weight_loss_alert",
-    "description": "Weight decreased to 159.8 lbs, approximately 4.9% below baseline."
+    "description": "Weight decreased to 159.0 lbs (-5.36%), exceeding the 5% weight-loss threshold."
   },
   {
     "row_index": 11,
@@ -99,13 +99,13 @@
     "row_index": 9,
     "patient_id": "P03",
     "type": "weight_loss_alert",
-    "description": "Weight decreased from baseline 142.0 lbs to 136.0 lbs, exceeding the 5% weight-loss threshold."
+    "description": "Weight decreased from baseline 142.0 lbs to 134.8 lbs (-5.07%), exceeding the 5% weight-loss threshold."
   },
   {
     "row_index": 10,
     "patient_id": "P03",
     "type": "weight_loss_alert",
-    "description": "Weight decreased to 135.2 lbs, approximately 4.8% below baseline."
+    "description": "Weight decreased to 134.4 lbs (-5.35%), exceeding the 5% weight-loss threshold."
   },
   {
     "row_index": 11,

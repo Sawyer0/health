@@ -3,10 +3,25 @@
 import sqlite3
 from typing import List, Dict, Any, Optional, Tuple, Union, Self
 from pathlib import Path
-from domain.schema import SymptomReport, StoredSymptomReport, ConflictEvent
-from domain.conflicts import detect_all_conflicts, compute_medication_deltas, is_review_candidate
-from constants import DEFAULT_DB_PATH
-from storage.queries import SCHEMA_SQL, QUERY_LATEST_DASHBOARD, QUERY_VOMITING_EPISODES
+from domain.schema import (
+    SymptomReport,
+    StoredSymptomReport,
+    ConflictEvent,
+    PatientClinicalSummary,
+)
+from domain.conflicts import detect_all_conflicts, compute_medication_deltas
+from constants import (
+    DEFAULT_DB_PATH,
+    LOW_CONFIDENCE_THRESHOLD,
+    WEIGHT_LOSS_CLINICAL_THRESHOLD_PCT,
+)
+from storage.queries import (
+    SCHEMA_SQL,
+    QUERY_LATEST_DASHBOARD,
+    QUERY_REVIEW_QUEUE,
+    QUERY_VOMITING_EPISODES,
+    QUERY_PATIENT_CLINICAL_SUMMARIES,
+)
 from storage.serializer import row_to_stored_report, report_to_insert_params
 
 
@@ -61,9 +76,45 @@ class ReportStore:
         cur.execute(QUERY_VOMITING_EPISODES, (patient_id,))
         rows = cur.fetchall()
         return [
-            {"week": r[0], "episode_count": r[1], "avg_severity": round(r[2], 2) if r[2] else None}
+            {
+                "week": r[0],
+                "episode_count": int(r[1]),
+                "avg_severity": round(float(r[2]), 2) if r[2] is not None else None,
+                "peak_severity": int(r[3]) if r[3] is not None else None,
+            }
             for r in rows
         ]
+
+    def patient_clinical_summaries(self, patient_id: Optional[str] = None) -> List[PatientClinicalSummary]:
+        """Computes per-patient clinical risk metrics, severity bounds, and weight-loss percentage in SQL."""
+        where_clause = "WHERE patient_id = ?" if patient_id else ""
+        params: Tuple[Any, ...] = (
+            (patient_id, LOW_CONFIDENCE_THRESHOLD)
+            if patient_id
+            else (LOW_CONFIDENCE_THRESHOLD,)
+        )
+        cur = self.conn.cursor()
+        cur.execute(QUERY_PATIENT_CLINICAL_SUMMARIES.format(where_clause=where_clause), params)
+        summaries: List[PatientClinicalSummary] = []
+        for row in cur.fetchall():
+            weight_pct = float(row[7]) if row[7] is not None else None
+            summaries.append(
+                PatientClinicalSummary(
+                    patient_id=str(row[0]),
+                    patient_name=str(row[1]),
+                    total_reports=int(row[2]),
+                    peak_severity=int(row[3]) if row[3] is not None else None,
+                    avg_severity=float(row[4]) if row[4] is not None else None,
+                    baseline_weight_lbs=float(row[5]) if row[5] is not None else None,
+                    latest_weight_lbs=float(row[6]) if row[6] is not None else None,
+                    weight_change_pct=weight_pct,
+                    clinically_significant_weight_loss=(
+                        weight_pct is not None and weight_pct <= WEIGHT_LOSS_CLINICAL_THRESHOLD_PCT
+                    ),
+                    review_flag_count=int(row[8] or 0),
+                )
+            )
+        return summaries
 
     def symptoms_after_medication_change(self, patient_id: str) -> List[ConflictEvent]:
         reports = self.all_reports(patient_id)
@@ -88,22 +139,24 @@ class ReportStore:
         return detect_all_conflicts(reports)
 
     def latest_reports_dashboard(self, patient_id: Optional[str] = None) -> List[StoredSymptomReport]:
-        query = QUERY_LATEST_DASHBOARD
-        params: Tuple[Any, ...] = ()
-        if patient_id:
-            query += " WHERE sr.patient_id = ? "
-            params = (patient_id,)
-        query += " ORDER BY sr.patient_id, sr.timestamp"
-        return self._query_reports(query, params)
+        where_clause = "WHERE sr.patient_id = ?" if patient_id else ""
+        params: Tuple[Any, ...] = (patient_id,) if patient_id else ()
+        return self._query_reports(
+            QUERY_LATEST_DASHBOARD.format(where_clause=where_clause),
+            params,
+        )
 
     def review_queue(self, patient_id: Optional[str] = None) -> List[StoredSymptomReport]:
-        query = "SELECT * FROM symptom_reports "
-        params: Tuple[Any, ...] = ()
-        if patient_id:
-            query += "WHERE patient_id = ? "
-            params = (patient_id,)
-        query += "ORDER BY timestamp DESC"
-        return [r for r in self._query_reports(query, params) if is_review_candidate(r)]
+        patient_filter = "AND sr.patient_id = ?" if patient_id else ""
+        params: Tuple[Any, ...] = (
+            (LOW_CONFIDENCE_THRESHOLD, patient_id)
+            if patient_id
+            else (LOW_CONFIDENCE_THRESHOLD,)
+        )
+        return self._query_reports(
+            QUERY_REVIEW_QUEUE.format(patient_filter=patient_filter),
+            params,
+        )
 
     def get_report_by_id(self, report_id: int) -> Optional[StoredSymptomReport]:
         """Fetches a single stored symptom report by primary key id."""

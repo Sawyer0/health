@@ -4,7 +4,12 @@ import io
 from typing import List, Optional, Dict, Any
 from fastapi import FastAPI, Query, HTTPException, Depends, status
 from fastapi.responses import HTMLResponse, Response
-from domain import StoredSymptomReport, ConflictEvent, parse_report
+from domain import (
+    StoredSymptomReport,
+    ConflictEvent,
+    PatientClinicalSummary,
+    parse_report,
+)
 from storage import ReportStore
 from constants import DEFAULT_DB_PATH
 from components import render_dashboard_page
@@ -72,6 +77,16 @@ def get_conflicts(
     """JSON API endpoint returning all detected conflicts, same-day divergences, and medication deltas."""
     with store:
         return store.detect_conflicts(patient_id=patient_id)
+
+
+@app.get("/patients/summary", response_model=List[PatientClinicalSummary])
+def get_patient_summaries(
+    patient_id: Optional[str] = Query(None, description="Optional patient ID filter"),
+    store: ReportStore = Depends(get_store),
+) -> List[PatientClinicalSummary]:
+    """Returns per-patient clinical risk metrics, severity bounds, and weight-loss trajectory."""
+    with store:
+        return store.patient_clinical_summaries(patient_id=patient_id)
 
 
 @app.get("/patient/{patient_id}/chart")

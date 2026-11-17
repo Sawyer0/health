@@ -73,9 +73,9 @@ def parse_report(raw_report: Dict[str, Any]) -> ParseResult:
         warnings.append("low_confidence")
 
     questionnaire = raw_report.get("questionnaire")
-    if isinstance(questionnaire, dict) and severity is not None:
-        q_sev = questionnaire.get("pain") if questionnaire.get("pain") is not None else questionnaire.get(str(symptom))
-        if q_sev is not None and abs(int(severity) - int(q_sev)) >= CONTRADICTION_SEVERITY_DELTA_THRESHOLD:
+    if isinstance(questionnaire, dict) and severity is not None and symptom:
+        q_sev = questionnaire.get(str(symptom))
+        if isinstance(q_sev, (int, float)) and abs(int(severity) - int(q_sev)) >= CONTRADICTION_SEVERITY_DELTA_THRESHOLD:
             if "conflicting_report" not in warnings:
                 warnings.append("conflicting_report")
 

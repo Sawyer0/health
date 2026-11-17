@@ -13,6 +13,7 @@ DEFAULT_CHART_PATH: Path = DATA_DIR / "trend.png"
 # Confidence & quality thresholds
 LOW_CONFIDENCE_THRESHOLD: float = 0.6
 CONTRADICTION_SEVERITY_DELTA_THRESHOLD: int = 2
+WEIGHT_LOSS_CLINICAL_THRESHOLD_PCT: float = -5.0
 
 # Severity mappings from patient natural language
 SEVERITY_MAP: Dict[str, int] = {

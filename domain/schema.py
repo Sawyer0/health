@@ -59,3 +59,17 @@ class ConflictEvent(BaseModel):
     timestamp: Optional[str] = None
     added_medications: List[str] = []
     removed_medications: List[str] = []
+
+
+class PatientClinicalSummary(BaseModel):
+    """Business/clinical risk summary per patient across their reporting timeline."""
+    patient_id: str
+    patient_name: str
+    total_reports: int
+    peak_severity: Optional[int] = None
+    avg_severity: Optional[float] = None
+    baseline_weight_lbs: Optional[float] = None
+    latest_weight_lbs: Optional[float] = None
+    weight_change_pct: Optional[float] = None
+    clinically_significant_weight_loss: bool = False
+    review_flag_count: int = 0
